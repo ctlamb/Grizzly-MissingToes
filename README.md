@@ -27,7 +27,7 @@ library(ggrepel)
 options(scipen=999)
 ```
 
-\#\#Load data
+## Load data
 
 ``` r
 ##capture records
@@ -42,7 +42,7 @@ toelocs <- read_csv(here::here("data_git","toelocs.csv"))%>%
   rename("Missing toes"=missing, Trap=trap)
 ```
 
-## denning summary
+## Denning summary
 
 ``` r
 ##make all the same year for easy calculation
@@ -93,7 +93,7 @@ den.95 <- tibble(class=c("95% \n denned","5% \n emerged"),
                  date=c(ymd("2020-11-22"),ymd("2020-03-30")))
 ```
 
-## plot
+## Plot
 
 ``` r
 a <- ggplot(ele.summary, aes(x=date,y=elev))+
@@ -144,7 +144,7 @@ ggarrange(b,a, ncol=1)
 ggsave(here::here("plots","timing.png"), width=7, height=9)
 ```
 
-## Main Plot
+## Main Plot (details added in .ppt)
 
 ``` r
 ggplot(den%>%select(BearID,Enter=enter.yr,Exit=exit.yr)%>%pivot_longer(-BearID)%>%drop_na())+
@@ -173,7 +173,7 @@ ggplot(den%>%select(BearID,Enter=enter.yr,Exit=exit.yr)%>%pivot_longer(-BearID)%
 ggsave(here::here("plots","timing2.png"), width=8, height=6)
 ```
 
-## map
+## Map
 
 ``` r
 # register_google("add your key here")
@@ -216,29 +216,20 @@ map
 ggsave(here::here("plots","map.png"), height=7, width=7, unit="in")
 ```
 
-## summary stats
+## Summary stats
 
 ``` r
-##unique individuals captured atleast 1 year old
+##unique individuals captured at least 1 year old
 cap%>%
   filter(year(`Date and Time`)>2015 & `Age Estimate`>0)%>%
-  summarise(n=n_distinct(`Capture ID`))
-```
+  summarise(n=n_distinct(`Capture ID`))%>%
+  print()
 
-    ## filter: removed 7 rows (7%), 87 rows remaining
 
-    ## summarise: now one row and one column, ungrouped
-
-``` r
 ##unique individuals collared
 cap%>%
   filter(year(`Date and Time`)>2015 & !is.na(`Collar Number`))%>%
   summarise(n=n_distinct(`Capture ID`))
-```
 
-    ## filter: removed 11 rows (12%), 83 rows remaining
-    ## summarise: now one row and one column, ungrouped
-
-``` r
 #test
 ```

@@ -104,7 +104,7 @@ ev.grizz%>%
   
 ```
 
-##Load data
+## Load data
 ```{r Load data clean, message=FALSE, warning=FALSE}
 ##capture records
 cap <- read_csv(here::here("data_git","cap.csv"))
@@ -117,7 +117,7 @@ toelocs <- read_csv(here::here("data_git","toelocs.csv"))%>%
   st_as_sf(coords=c("X","Y"), crs=4326)%>%
   rename("Missing toes"=missing, Trap=trap)
 ```
-## denning summary
+## Denning summary
 ```{r den summary, fig.height=7, fig.width=7}
 
 ##make all the same year for easy calculation
@@ -156,7 +156,7 @@ den.95 <- tibble(class=c("95% \n denned","5% \n emerged"),
                  date=c(ymd("2020-11-22"),ymd("2020-03-30")))
   
 ```
-## plot
+## Plot
 ```{r plot, fig.height=9, fig.width=7, message=FALSE, warning=FALSE}
 a <- ggplot(ele.summary, aes(x=date,y=elev))+
   annotate("rect", xmin=ymd("2020-11-01"), xmax=ymd("2020-12-31"), ymin=-Inf, ymax=Inf, alpha=0.5, fill="grey")+
@@ -202,7 +202,7 @@ ggsave(here::here("plots","timing.png"), width=7, height=9)
 ```
 
 
-## Main Plot
+## Main Plot (details added in .ppt)
 ```{r plot2, fig.height=5, fig.width=6, message=FALSE, warning=FALSE}
 ggplot(den%>%select(BearID,Enter=enter.yr,Exit=exit.yr)%>%pivot_longer(-BearID)%>%drop_na())+
   annotate("rect", xmin=ymd("2020-11-01"), xmax=ymd("2020-12-31"), ymin=-Inf, ymax=Inf, alpha=0.5, fill="grey")+
@@ -228,7 +228,7 @@ ggsave(here::here("plots","timing2.png"), width=8, height=6)
 ```
 
 
-## map
+## Map
 ```{r map, message=FALSE, warning=FALSE}
 # register_google("add your key here")
 # basemap <- ggmap::get_map(location = c(lat = 50, lon =-116),zoom=8, maptype ="terrain", source="stamen")
@@ -267,12 +267,13 @@ ggsave(here::here("plots","map.png"), height=7, width=7, unit="in")
 ```
 
 
-## summary stats
-```{r sum stats}
-##unique individuals captured atleast 1 year old
+## Summary stats
+```{r sum stats, message=FALSE, warning=FALSE}
+##unique individuals captured at least 1 year old
 cap%>%
   filter(year(`Date and Time`)>2015 & `Age Estimate`>0)%>%
-  summarise(n=n_distinct(`Capture ID`))
+  summarise(n=n_distinct(`Capture ID`))%>%
+  print()
 
 
 ##unique individuals collared
