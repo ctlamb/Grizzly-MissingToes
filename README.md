@@ -24,6 +24,7 @@ library(ggpubr)
 library(maps)
 library(ggsflabel)
 library(ggrepel)
+library(knitr)
 options(scipen=999)
 ```
 
@@ -57,10 +58,15 @@ den%>%
  summarise(med.enter=median(enter.yr,na.rm=TRUE),
            upper75=quantile(enter.yr,na.rm=TRUE,0.75, type = 1),
            upper95=quantile(enter.yr,na.rm=TRUE,0.95, type = 1),
-           med.exit=median(exit.yr,na.rm=TRUE))
+           med.exit=median(exit.yr,na.rm=TRUE))%>%
+  kable()
 ```
 
     ## summarise: now one row and 4 columns, ungrouped
+
+| med.enter  | upper75    | upper95    | med.exit   |
+| :--------- | :--------- | :--------- | :--------- |
+| 2020-11-06 | 2020-11-12 | 2020-11-22 | 2020-04-21 |
 
 ``` r
 den.enter <- den%>%
@@ -223,13 +229,25 @@ ggsave(here::here("plots","map.png"), height=7, width=7, unit="in")
 cap%>%
   filter(year(`Date and Time`)>2015 & `Age Estimate`>0)%>%
   summarise(n=n_distinct(`Capture ID`))%>%
-  print()
+  kable()
+```
 
+|  n |
+| -: |
+| 61 |
 
+``` r
 ##unique individuals collared
 cap%>%
   filter(year(`Date and Time`)>2015 & !is.na(`Collar Number`))%>%
-  summarise(n=n_distinct(`Capture ID`))
+  summarise(n=n_distinct(`Capture ID`))%>%
+  kable()
+```
 
+|  n |
+| -: |
+| 59 |
+
+``` r
 #test
 ```
