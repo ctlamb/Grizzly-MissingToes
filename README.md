@@ -1,7 +1,7 @@
 Missing Toes
 ================
 Clayton Lamb
-29 June, 2021
+15 October, 2021
 
 ## Load Packages
 
@@ -249,5 +249,91 @@ cap%>%
 | 59 |
 
 ``` r
-#test
+#sex
+##unique individuals collared
+cap%>%
+  filter(year(`Date and Time`)>2015 & !is.na(`Collar Number`))%>%
+  group_by(Sex)%>%
+  summarise(n=n_distinct(`Capture ID`))%>%
+  kable()
 ```
+
+| Sex |  n |
+| :-- | -: |
+| F   | 31 |
+| M   | 28 |
+
+## Conibear Test
+
+``` r
+human.pull <- test%>%
+  filter(Species=="GB")%>%
+  group_by(Species,Age,Trap)%>%
+  summarise(Trials=n(),'Percent released'=mean(Outcome)*100)%>%
+  ungroup%>%
+  select(-Species)
+
+kable(human.pull)
+```
+
+| Age   | Trap     | Trials | Percent released |
+| :---- | :------- | -----: | ---------------: |
+| Adult | Bel120   |      5 |                0 |
+| Adult | North155 |      5 |               60 |
+| Adult | Sauv160  |      5 |                0 |
+| Cub   | Bel120   |      5 |              100 |
+| Cub   | North155 |      5 |              100 |
+| Cub   | Sauv120  |      8 |               50 |
+| Cub   | Sauv160  |      6 |                0 |
+
+``` r
+write_csv(human.pull, here::here("tables","humanpull.csv"))
+
+max.pull <- max%>%
+  filter(Species=="GB")%>%
+  group_by(Species,Age,Trap)%>%
+  summarise(Trials=n(),
+            mean=mean(Ftlbs)%>%round(0),
+            min=min(Ftlbs),
+            max=max(Ftlbs))%>%
+    ungroup%>%
+  select(-Species)
+
+kable(max.pull)
+```
+
+| Age   | Trap    | Trials | mean | min | max |
+| :---- | :------ | -----: | ---: | --: | --: |
+| Adult | Sauv120 |      3 |  373 | 260 | 510 |
+| Adult | Sauv160 |      2 |  340 | 200 | 480 |
+
+``` r
+write_csv(max.pull, here::here("tables","maxpull.csv"))
+ 
+
+
+prop.boot <-tibble()
+for(i in 1:500){
+prop.boot <- test%>%
+  filter(Species=="GB")%>%
+  group_by(Age,Trap)%>%
+  sample_frac(1,replace=TRUE)%>%
+  summarise(Outcome=mean(Outcome))%>%
+  group_by(Age)%>%
+  summarise(mean=mean(Outcome))%>%
+  mutate(i=i)%>%
+  rbind(prop.boot)
+}
+
+prop.boot%>%
+  group_by(Age)%>%
+  summarise(median=median(mean),
+            lower=quantile(mean,0.025),
+            upper=quantile(mean,0.975))%>%
+  kable()
+```
+
+| Age   | median |     lower |     upper |
+| :---- | -----: | --------: | --------: |
+| Adult |  0.200 | 0.0666667 | 0.3333333 |
+| Cub   |  0.625 | 0.5312500 | 0.7187500 |

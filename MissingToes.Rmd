@@ -41,9 +41,12 @@ options(scipen=999)
 ##################  
 ##LOAD DATA
 ################## 
+##conibear test
+test <- read_csv(here::here("data_git","ConibearTest_humanpull.csv"))
+max <- read_csv(here::here("data_git","ConibearTest_maxpull.csv"))
 ##capture records
-cap <- read_csv(here::here("data","Grizzly Capture Form","Grizzly Capture Form.csv"))%>%
-  select(`Capture ID`,`Date and Time`, `Collar Number`,`Age Estimate`)%>%
+cap <- read_csv("/Users/clayton.lamb/Google Drive/Documents/University/PDF/PDF Analyses/MissingToes/data/Grizzly Capture Form/Grizzly Capture Form.csv")%>%
+  select(`Capture ID`,`Date and Time`, `Collar Number`,`Age Estimate`, Sex)%>%
   write_csv(here::here("data_git","cap.csv"))
 
 ###dens
@@ -284,5 +287,62 @@ cap%>%
   summarise(n=n_distinct(`Capture ID`))%>%
   kable()
 
-#test
+#sex
+##unique individuals collared
+cap%>%
+  filter(year(`Date and Time`)>2015 & !is.na(`Collar Number`))%>%
+  group_by(Sex)%>%
+  summarise(n=n_distinct(`Capture ID`))%>%
+  kable()
+```
+
+## Conibear Test
+```{r Coni Test, message=FALSE, warning=FALSE}
+human.pull <- test%>%
+  filter(Species=="GB")%>%
+  group_by(Species,Age,Trap)%>%
+  summarise(Trials=n(),'Percent released'=mean(Outcome)*100)%>%
+  ungroup%>%
+  select(-Species)
+
+kable(human.pull)
+write_csv(human.pull, here::here("tables","humanpull.csv"))
+
+max.pull <- max%>%
+  filter(Species=="GB")%>%
+  group_by(Species,Age,Trap)%>%
+  summarise(Trials=n(),
+            mean=mean(Ftlbs)%>%round(0),
+            min=min(Ftlbs),
+            max=max(Ftlbs))%>%
+    ungroup%>%
+  select(-Species)
+
+kable(max.pull)
+write_csv(max.pull, here::here("tables","maxpull.csv"))
+ 
+
+
+prop.boot <-tibble()
+for(i in 1:500){
+prop.boot <- test%>%
+  filter(Species=="GB")%>%
+  group_by(Age,Trap)%>%
+  sample_frac(1,replace=TRUE)%>%
+  summarise(Outcome=mean(Outcome))%>%
+  group_by(Age)%>%
+  summarise(mean=mean(Outcome))%>%
+  mutate(i=i)%>%
+  rbind(prop.boot)
+}
+
+prop.boot%>%
+  group_by(Age)%>%
+  summarise(median=median(mean),
+            lower=quantile(mean,0.025),
+            upper=quantile(mean,0.975))%>%
+  kable()
+
+
+
 ```
